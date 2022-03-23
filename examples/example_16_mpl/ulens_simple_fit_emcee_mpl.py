@@ -8,6 +8,11 @@ import numpy as np
 import time
 from multiprocessing import Pool
 
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
+
+
 try:
     import emcee
 except ImportError as err:
@@ -22,7 +27,7 @@ import MulensModel as mm
 
 import corner
 
-allow_negative_blend_flux = False
+allow_negative_blend_flux = True
 
 # Define likelihood functions
 def ln_like(theta, event, parameters_to_fit):
@@ -87,6 +92,7 @@ def ln_prob(theta, event, parameters_to_fit):
     
     fluxes = get_fluxes(event)
     
+    ln_prior_flux = 0.
     if not allow_negative_blend_flux:
         n_fluxes_per_dataset = 2 + 1
         ln_prior_flux = run_flux_checks_ln_prior(n_fluxes_per_dataset, fluxes)

@@ -3,12 +3,10 @@ Class and script for fitting microlensing model using MulensModel.
 All the settings are read from a YAML file.
 """
 import sys
-import time
 from os import path, sep
 import tempfile
 import shutil
 import warnings
-from multiprocessing import Pool
 import math
 import numpy as np
 from scipy.interpolate import interp1d
@@ -16,8 +14,9 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec, rc, rcParams, rcParamsDefault
 from matplotlib.backends.backend_pdf import PdfPages
 
-import os
+import time
 
+import os
 os.environ["OMP_NUM_THREADS"] = "1"
 
 import_failed = set()
@@ -44,7 +43,7 @@ try:
 except Exception:
     raise ImportError('\nYou have to install MulensModel first!\n')
 
-__version__ = '0.28.1dev'
+__version__ = '0.28.1'
 
 
 class UlensModelFit(object):
@@ -1781,10 +1780,8 @@ class UlensModelFit(object):
         """
         Setup EMCEE fit
         """
-        UlensModelFit._pool = Pool()
         self._sampler = emcee.EnsembleSampler(
-            self._n_walkers, self._n_fit_parameters, self._ln_prob,
-            pool=UlensModelFit._pool)
+            self._n_walkers, self._n_fit_parameters, self._ln_prob)
 
     def _setup_fit_MultiNest(self):
         """
@@ -1866,11 +1863,12 @@ class UlensModelFit(object):
         """
         Run EMCEE
         """
-        tStart = time.time()
+        timeStart = time.time()
         self._sampler.run_mcmc(**self._kwargs_EMCEE)
-        tEnd = time.time()
-        serial_time = tEnd - tStart
-        print("Multiprocessing took {0:.1f} seconds".format(serial_time))
+        timeEnd = time.time()
+        serial_time = timeEnd - timeStart
+        print("Serial took {0:.1f} seconds".format(serial_time))
+        
 
     def _run_fit_MultiNest(self):
         """
@@ -1889,11 +1887,7 @@ class UlensModelFit(object):
                 self._print_model_file.close()
                 self._print_model = False
 
-        if self._fit_method == 'EMCEE':
-            UlensModelFit._pool.close()
-            UlensModelFit._pool.join()
-            UlensModelFit._pool.terminate()
-        elif self._fit_method == 'MultiNest':
+        if self._fit_method == 'MultiNest':
             base = self._kwargs_MultiNest['outputfiles_basename']
             self._analyzer = Analyzer(n_params=self._n_fit_parameters,
                                       outputfiles_basename=base)
