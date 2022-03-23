@@ -1,1 +1,59 @@
+photometry_files:
+    - {file_name: Gaia17bdk_GSA.dat, phot_fmt: mag, plot_properties: {zorder: 11., color: green, label: "Gaia, G"}, add_2450000: False}
+    - {file_name: Gaia17bdk_OGLE.dat, phot_fmt: mag, plot_properties: {zorder: 10., color: cornflowerblue, label: "OGLE, I"}, add_2450000: False}
+    - {file_name: Gaia17bdk_KMTNet_KMTA.dat, phot_fmt: flux, plot_properties: {zorder: 9., color: indianred, label: "KMTNet, SAAO"}, add_2450000: False}
+    - {file_name: Gaia17bdk_KMTNet_KMTC.dat, phot_fmt: flux, plot_properties: {zorder: 8., color: firebrick, label: "KMTNet, CTIO"}, add_2450000: False}
+    - {file_name: Gaia17bdk_KMTNet_KMTS.dat, phot_fmt: flux, plot_properties: {zorder: 7., color: darkred, label: "KMTNet, SSO"}, add_2450000: False}
+            
+model:
+    default method: point_source_point_lens
+    coords: 17:42:32.27   -34:06:13.46
+fixed_parameters:
+    t_0_par: 2457878.
+starting_parameters:
+    t_0: gauss  2457878. 5.0
+    u_0: gauss 0.01 0.2
+    t_E: gauss 120. 100.
+    pi_E_N: gauss 0.0 0.1
+    pi_E_E: gauss 0.0 0.1
+fit_constraints:
+     no_negative_blending_flux: False
+min_values:
+    t_0: 2456000.
+    u_0: -1.5
+    t_E: 0.
+    pi_E_N: -1.0
+    pi_E_E: -1.0
+max_values:
+    t_0: 2458000.
+    u_0: 1.5
+    t_E: 1000.
+    pi_E_N: 1.0
+    pi_E_E: 1.0
+fitting_parameters:
+    n_walkers: 80
+    n_steps: 1000
+    n_burn:  500
+    progress: True
+    posterior file: Gaia17bdk_models.npy
+    posterior file fluxes: all
+plots:
+    best model:
+        # You can skip the line below - the light curve will be plotted on screen.
+        file: Gaia17bdk_model.png
+        time range: 2457600. 2458300.
+        magnitude range: 19. 15.5
+        rcParams:
+        # This allows setting many matplotlib parameters, e.g.:
+            font.size: 14
+        legend:
+        # Here are kwargs passed to plt.legend()
+            ncol: 2
+            # makes legend in 2 columns
+            loc: lower center
+    triangle:
+        file: Gaia17bdk_triangle.png
+        shift t_0: False
+    trace:
+        file: Gaia17bdk_trace.png
 # test event: 
